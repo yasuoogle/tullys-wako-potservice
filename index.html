@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f5f5f3;font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;color:#1a1a1a;padding:2rem 1rem}
 .wrap{max-width:680px;margin:0 auto;padding:1.5rem 0}
-.form-title{font-size:22px;font-weight:500;margin-bottom:6px}
+.form-title{font-size:20px;font-weight:500;margin-bottom:6px;text-align:center;line-height:1.6}
 .lang-switch{font-size:13px;margin-bottom:1rem;color:#666}
 .lang-switch a{color:#1D9E75;text-decoration:underline;cursor:pointer;font-weight:500}
 .desc-box{background:#fff;border:1px solid #e8e7e3;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:2rem;font-size:13.5px;line-height:1.8}
@@ -56,7 +56,7 @@ textarea{resize:vertical}
 </head>
 <body>
 <div class="wrap">
-  <div class="form-title" id="form-title">コーヒーポットサービス 注文フォーム</div>
+  <div class="form-title" id="form-title">タリーズコーヒー和光理化学研究所店<br>コーヒーポットサービス 注文フォーム</div>
   <div class="lang-switch" id="lang-link"><a onclick="setLang('en')">English</a></div>
 
   <div class="desc-box" id="desc-box-wrap">
@@ -167,7 +167,7 @@ const imgSrc='pot_image.jpg';
 
 const content={
   ja:{
-    title:'コーヒーポットサービス 注文フォーム',
+    title:'タリーズコーヒー和光理化学研究所店<br>コーヒーポットサービス 注文フォーム',
     langLink:'<a onclick="setLang(\'en\')">English</a>',
     imgAlt:'タリーズコーヒー ポットサービス',
     desc:`<p>タリーズコーヒーの美味しさを、人の集まるさまざまなシーンで。淹れたてのコーヒーや紅茶のショートサイズ約10杯分をポットに入れてご提供いたします。</p>
@@ -194,7 +194,7 @@ const content={
     submit:'送信する',req:'必須'
   },
   en:{
-    title:'Coffee Pot Service Order Form',
+    title:'Tully\'s Coffee Wako RIKEN Store<br>Coffee Pot Service Order Form',
     langLink:'<a onclick="setLang(\'ja\')">日本語</a>',
     imgAlt:"Tully's Coffee Pot Service",
     desc:`<p>Enjoy Tully's Coffee at your gatherings and events. We serve freshly brewed coffee or tea — equivalent to about 10 short-size cups — in a pot.</p>
@@ -225,7 +225,7 @@ const content={
 function setLang(lang){
   currentLang=lang;
   const c=content[lang];
-  document.getElementById('form-title').textContent=c.title;
+  document.getElementById('form-title').innerHTML=c.title;
   document.getElementById('lang-link').innerHTML=c.langLink;
   document.getElementById('desc-content').innerHTML=c.desc;
   document.getElementById('desc-img').alt=c.imgAlt;
@@ -332,8 +332,14 @@ document.getElementById('btn-submit').addEventListener('click', async function()
   const food=document.getElementById('ta-food').value.trim();
   const memo=document.getElementById('ta-memo').value.trim();
 
+  const p1checked=document.getElementById('p1').checked;
+  const p2checked=document.getElementById('p2').checked;
   if(!email||!dept||!name||!tel){
-    alert(currentLang==='ja'?'必須項目を入力してください。':'Please fill in all required fields.');
+    alert(currentLang==='ja'?'必須項目（メールアドレス・部署名・お名前・緊急連絡先）を入力してください。':'Please fill in all required fields (email, department, name, emergency contact).');
+    return;
+  }
+  if(!p1checked&&!p2checked){
+    alert(currentLang==='ja'?'お支払い方法を選択してください。':'Please select a payment method.');
     return;
   }
 
