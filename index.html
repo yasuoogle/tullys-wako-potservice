@@ -197,7 +197,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v2.0</div>
+  <div class="version-footer">v2.1</div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -685,10 +685,18 @@ document.getElementById('btn-submit').addEventListener('click', async function()
     // Send notification to store
     await emailjs.send('service_10si8uf','template_dojv4p9',params);
 
-    // Also submit to Formspree
+    // Submit to Formspree
     await fetch('https://formspree.io/f/mpqyogal',{
       method:'POST',
       headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(params)
+    });
+
+    // Save to Google Spreadsheet
+    await fetch('https://script.google.com/macros/s/AKfycbxtsW2oQCRkRCR62ZVTKzCZ82LnxCnP0bHiEvtrkA6pPltkGxm9hSjNCVBVcnDpvBe2mA/exec',{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify(params)
     });
 
