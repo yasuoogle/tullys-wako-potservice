@@ -51,6 +51,9 @@ textarea{resize:vertical}
 .invoice-fields{display:none;margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid #e8e7e3}
 .submit-btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:.5rem}
 .submit-btn:hover{opacity:.88}
+.field-error{font-size:12px;color:#D85A30;margin-top:4px;display:none}
+.field-error.visible{display:block}
+input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2px rgba(216,90,48,.12)}
 @media(max-width:520px){.desc-inner{flex-direction:column}.desc-image{width:100%;min-width:unset;max-height:200px}.grid2{grid-template-columns:1fr}.datetime-row{grid-template-columns:1fr}}
 </style>
 </head>
@@ -85,20 +88,24 @@ textarea{resize:vertical}
     <div class="grid2">
       <div class="field">
         <label id="lbl-dept">部署名<span class="req">必須</span></label>
-        <input type="text" id="in-dept" placeholder="例：営業部">
+        <input type="text" id="in-dept" placeholder="例：営業部" onblur="validateField('in-dept','err-dept')">
+      <div class="field-error" id="err-dept">部署名を入力してください。</div>
       </div>
       <div class="field">
         <label id="lbl-name">お名前<span class="req">必須</span></label>
-        <input type="text" id="in-name" placeholder="例：山田 太郎">
+        <input type="text" id="in-name" placeholder="例：山田 太郎" onblur="validateField('in-name','err-name')">
+      <div class="field-error" id="err-name">お名前を入力してください。</div>
       </div>
     </div>
     <div class="field">
       <label id="lbl-email">メールアドレス<span class="req">必須</span></label>
-      <input type="email" id="in-email" placeholder="example@riken.jp">
+      <input type="email" id="in-email" placeholder="example@riken.jp" onblur="validateField('in-email','err-email')">
+    <div class="field-error" id="err-email">メールアドレスを入力してください。</div>
     </div>
     <div class="field">
       <label id="lbl-tel">緊急連絡先<span class="req">必須</span></label>
-      <input type="tel" id="in-tel" placeholder="例：090-0000-0000">
+      <input type="tel" id="in-tel" placeholder="例：090-0000-0000" onblur="validateField('in-tel','err-tel')">
+      <div class="field-error" id="err-tel">緊急連絡先を入力してください。</div>
       <div class="hint" id="hint-tel">当日ご連絡可能な電話番号をご入力ください。</div>
     </div>
   </div>
@@ -114,6 +121,7 @@ textarea{resize:vertical}
         <label for="p2" class="radio-label" id="lbl-p2">店頭払い</label>
       </div>
     </div>
+    <div class="field-error" id="err-payment">お支払い方法を選択してください。</div>
     <div class="invoice-fields" id="invoice-fields">
       <div class="field">
         <label id="lbl-inv-name">請求書宛名</label>
@@ -279,17 +287,49 @@ function addDelivery(){
     <div class="field" style="margin-bottom:10px">
       <label style="font-size:13px">${c.dateLabel}<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span></label>
       <div class="datetime-row">
-        <input type="date">
-        <select>${buildTimeOptions(currentLang)}</select>
+        <input type="date" onblur="validateDeliveryField(this,'date','${id}')">
+        <select onblur="validateDeliveryField(this,'time','${id}')">${buildTimeOptions(currentLang)}</select>
       </div>
+      <div class="field-error" id="err-datetime-${id}">${currentLang==='ja'?'日付と時刻を選択してください。':'Please select a date and time.'}</div>
     </div>
     <div class="field" style="margin:0">
       <label style="font-size:13px">${c.contentLabel}</label>
-      <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px"></textarea>
+      <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')"></textarea>
+      <div class="field-error" id="err-content-${id}">${currentLang==='ja'?'受渡内容を入力してください。':'Please enter order contents.'}</div>
     </div>`;
   document.getElementById('delivery-list').appendChild(div);
 }
+function validateDeliveryField(el,type,id){
+  const block=document.getElementById(id);
+  if(!block)return;
+  const dateInput=block.querySelector('input[type=date]');
+  const timeSelect=block.querySelector('select');
+  const textarea=block.querySelector('textarea');
+  if(type==='date'||type==='time'){
+    const hasDate=dateInput&&dateInput.value;
+    const hasTime=timeSelect&&timeSelect.value;
+    const errEl=document.getElementById('err-datetime-'+id);
+    if(errEl){
+      if(!hasDate||!hasTime){errEl.classList.add('visible');if(dateInput)dateInput.classList.add('error');if(timeSelect)timeSelect.classList.add('error');}
+      else{errEl.classList.remove('visible');if(dateInput)dateInput.classList.remove('error');if(timeSelect)timeSelect.classList.remove('error');}
+    }
+  }
+  if(type==='content'){
+    const errEl=document.getElementById('err-content-'+id);
+    if(errEl){
+      if(!textarea||!textarea.value.trim()){errEl.classList.add('visible');if(textarea)textarea.classList.add('error');}
+      else{errEl.classList.remove('visible');if(textarea)textarea.classList.remove('error');}
+    }
+  }
+}
 function removeDel(id){const el=document.getElementById(id);if(el)el.remove();}
+function validateField(inputId,errId){
+  const val=document.getElementById(inputId).value.trim();
+  const errEl=document.getElementById(errId);
+  if(!errEl)return;
+  if(!val){errEl.classList.add('visible');document.getElementById(inputId).classList.add('error');}
+  else{errEl.classList.remove('visible');document.getElementById(inputId).classList.remove('error');}
+}
 function toggleInvoiceFields(){
   const isInvoice=document.getElementById('p1').checked;
   document.getElementById('invoice-fields').style.display=isInvoice?'block':'none';
@@ -334,12 +374,44 @@ document.getElementById('btn-submit').addEventListener('click', async function()
 
   const p1checked=document.getElementById('p1').checked;
   const p2checked=document.getElementById('p2').checked;
-  if(!email||!dept||!name||!tel){
-    alert(currentLang==='ja'?'必須項目（メールアドレス・部署名・お名前・緊急連絡先）を入力してください。':'Please fill in all required fields (email, department, name, emergency contact).');
-    return;
-  }
-  if(!p1checked&&!p2checked){
-    alert(currentLang==='ja'?'お支払い方法を選択してください。':'Please select a payment method.');
+  let hasError=false;
+
+  // Validate basic fields
+  ['in-dept','in-name','in-email','in-tel'].forEach(id=>{
+    const errMap={'in-dept':'err-dept','in-name':'err-name','in-email':'err-email','in-tel':'err-tel'};
+    const val=document.getElementById(id).value.trim();
+    const errEl=document.getElementById(errMap[id]);
+    if(!val){if(errEl)errEl.classList.add('visible');document.getElementById(id).classList.add('error');hasError=true;}
+    else{if(errEl)errEl.classList.remove('visible');document.getElementById(id).classList.remove('error');}
+  });
+
+  // Validate delivery blocks
+  const blocks=document.querySelectorAll('.delivery-block');
+  blocks.forEach(block=>{
+    const id=block.id;
+    const dateInput=block.querySelector('input[type=date]');
+    const timeSelect=block.querySelector('select');
+    const textarea=block.querySelector('textarea');
+    const hasDate=dateInput&&dateInput.value;
+    const hasTime=timeSelect&&timeSelect.value;
+    const hasContent=textarea&&textarea.value.trim();
+    const dtErr=document.getElementById('err-datetime-'+id);
+    const ctErr=document.getElementById('err-content-'+id);
+    if(!hasDate||!hasTime){if(dtErr)dtErr.classList.add('visible');if(dateInput)dateInput.classList.add('error');if(timeSelect)timeSelect.classList.add('error');hasError=true;}
+    else{if(dtErr)dtErr.classList.remove('visible');if(dateInput)dateInput.classList.remove('error');if(timeSelect)timeSelect.classList.remove('error');}
+    if(!hasContent){if(ctErr)ctErr.classList.add('visible');if(textarea)textarea.classList.add('error');hasError=true;}
+    else{if(ctErr)ctErr.classList.remove('visible');if(textarea)textarea.classList.remove('error');}
+  });
+
+  // Validate payment
+  const payErrEl=document.getElementById('err-payment');
+  if(!p1checked&&!p2checked){if(payErrEl)payErrEl.classList.add('visible');hasError=true;}
+  else{if(payErrEl)payErrEl.classList.remove('visible');}
+
+  if(hasError){
+    document.querySelector('.error')||window.scrollTo({top:0,behavior:'smooth'});
+    const firstErr=document.querySelector('.field-error.visible');
+    if(firstErr)firstErr.scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
 
