@@ -190,7 +190,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v1.6</div>
+  <div class="version-footer">v1.7</div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -390,6 +390,20 @@ function addDelivery(){
   dc++;
   const id='del'+dc;
   const c=content[currentLang];
+
+  // Get previous block values to prefill
+  const blocks=document.querySelectorAll('.delivery-block');
+  let prevDate='', prevTime='', prevContent='';
+  if(blocks.length>0){
+    const prev=blocks[blocks.length-1];
+    const prevDateInput=prev.querySelector('input[type=date]');
+    const prevTimeSelect=prev.querySelector('select');
+    const prevTextarea=prev.querySelector('textarea');
+    if(prevDateInput)prevDate=prevDateInput.value;
+    if(prevTimeSelect)prevTime=prevTimeSelect.value;
+    if(prevTextarea)prevContent=prevTextarea.value;
+  }
+
   const div=document.createElement('div');
   div.className='delivery-block';
   div.id=id;
@@ -401,14 +415,25 @@ function addDelivery(){
         <input type="date" onblur="validateDeliveryField(this,'date','${id}')">
         <select onblur="validateDeliveryField(this,'time','${id}')">${buildTimeOptions(currentLang)}</select>
       </div>
-      <div class="field-error" id="err-datetime-${id}">${currentLang==='ja'?'日付と時刻を選択してください。':'Please select a date and time.'}</div>
+      <div class="field-error" id="err-datetime-${id}">${c.errDatetime}</div>
     </div>
     <div class="field" style="margin:0">
       <label style="font-size:13px">${c.contentLabel}<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span></label>
       <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')"></textarea>
-      <div class="field-error" id="err-content-${id}">${currentLang==='ja'?'受渡内容を入力してください。':'Please enter order contents.'}</div>
+      <div class="field-error" id="err-content-${id}">${c.errContent}</div>
     </div>`;
   document.getElementById('delivery-list').appendChild(div);
+
+  // Set previous values after appending to DOM
+  if(prevDate||prevTime||prevContent){
+    const newBlock=document.getElementById(id);
+    if(prevDate)newBlock.querySelector('input[type=date]').value=prevDate;
+    if(prevTime){
+      const sel=newBlock.querySelector('select');
+      sel.value=prevTime;
+    }
+    if(prevContent)newBlock.querySelector('textarea').value=prevContent;
+  }
 }
 function validateDeliveryField(el,type,id){
   const block=document.getElementById(id);
