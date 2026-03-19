@@ -190,7 +190,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v1.7</div>
+  <div class="version-footer">v1.8</div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -401,7 +401,7 @@ function addDelivery(){
     const prevTextarea=prev.querySelector('textarea');
     if(prevDateInput)prevDate=prevDateInput.value;
     if(prevTimeSelect)prevTime=prevTimeSelect.value;
-    if(prevTextarea)prevContent=prevTextarea.value;
+    // prevContent intentionally not copied
   }
 
   const div=document.createElement('div');
@@ -432,7 +432,7 @@ function addDelivery(){
       const sel=newBlock.querySelector('select');
       sel.value=prevTime;
     }
-    if(prevContent)newBlock.querySelector('textarea').value=prevContent;
+    // content left empty intentionally
   }
 }
 function validateDeliveryField(el,type,id){
