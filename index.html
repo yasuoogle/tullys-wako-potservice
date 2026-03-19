@@ -190,7 +190,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v1.4</div>
+  <div class="version-footer">v1.5</div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -344,7 +344,7 @@ function setLang(lang){
   document.querySelectorAll('.delivery-block').forEach(block=>{
     const labels=block.querySelectorAll('label');
     if(labels[0])labels[0].innerHTML=c.dateLabel+`<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span>`;
-    if(labels[1])labels[1].textContent=c.contentLabel;
+    if(labels[1])labels[1].innerHTML=c.contentLabel+`<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span>`;
     const ta=block.querySelector('textarea');
     if(ta)ta.placeholder=c.contentPlaceholder;
     const sel=block.querySelector('select');
@@ -369,7 +369,7 @@ function addDelivery(){
       <div class="field-error" id="err-datetime-${id}">${currentLang==='ja'?'日付と時刻を選択してください。':'Please select a date and time.'}</div>
     </div>
     <div class="field" style="margin:0">
-      <label style="font-size:13px">${c.contentLabel}</label>
+      <label style="font-size:13px">${c.contentLabel}<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span></label>
       <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')"></textarea>
       <div class="field-error" id="err-content-${id}">${currentLang==='ja'?'受渡内容を入力してください。':'Please enter order contents.'}</div>
     </div>`;
