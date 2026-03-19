@@ -11,7 +11,13 @@ body{background:#f5f5f3;font-family:-apple-system,BlinkMacSystemFont,'Helvetica 
 .form-title{font-size:20px;font-weight:500;margin-bottom:6px;text-align:center;line-height:1.6}
 .lang-switch{font-size:13px;margin-bottom:1rem;color:#666}
 .lang-switch a{color:#1D9E75;text-decoration:underline;cursor:pointer;font-weight:500}
-.desc-box{background:#fff;border:1px solid #e8e7e3;border-radius:12px;padding:1.1rem 1.25rem;margin-bottom:2rem;font-size:13.5px;line-height:1.8}
+.desc-box{background:#fff;border:1px solid #e8e7e3;border-radius:12px;padding:0;margin-bottom:1.5rem;font-size:13.5px;line-height:1.8;overflow:hidden}
+.desc-header{display:flex;justify-content:space-between;align-items:center;padding:.85rem 1.25rem;cursor:pointer;user-select:none}
+.desc-header-title{font-size:13px;font-weight:500;color:#666}
+.desc-toggle-btn{background:none;border:0.5px solid #ddd;border-radius:6px;padding:3px 10px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;transition:all .15s}
+.desc-toggle-btn:hover{background:#f5f5f3;color:#555}
+.desc-body{padding:0 1.25rem 1.1rem;transition:all .3s ease}
+.desc-body.collapsed{display:none}
 .desc-inner{display:flex;gap:1.25rem;align-items:flex-start}
 .desc-image{width:140px;min-width:140px;border-radius:8px;object-fit:cover;flex-shrink:0}
 .desc-content{flex:1}
@@ -52,6 +58,11 @@ textarea{resize:vertical}
 .submit-btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:.5rem}
 .submit-btn:hover{opacity:.88}
 .version-footer{text-align:center;font-size:11px;color:#bbb;margin-top:1.5rem;padding-bottom:1rem}
+.desc-toggle{display:flex;justify-content:flex-end;margin-bottom:.5rem}
+.desc-toggle-btn{background:none;border:0.5px solid #ccc;border-radius:6px;padding:4px 10px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;transition:all .15s}
+.desc-toggle-btn:hover{background:#f0f0ee;color:#555}
+.desc-body{overflow:hidden;transition:max-height .35s ease,opacity .35s ease;max-height:1000px;opacity:1}
+.desc-body.collapsed{max-height:0;opacity:0}
 .field-error{font-size:12px;color:#D85A30;margin-top:4px;display:none}
 .field-error.visible{display:block}
 input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2px rgba(216,90,48,.12)}
@@ -64,9 +75,15 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   <div class="lang-switch" id="lang-link"><a onclick="setLang('en')">English</a></div>
 
   <div class="desc-box" id="desc-box-wrap">
-    <div class="desc-inner">
-      <div class="desc-content" id="desc-content"></div>
-      <img id="desc-img" class="desc-image" src="" alt="Tully's Coffee Pot Service">
+    <div class="desc-header" onclick="toggleDesc()">
+      <span class="desc-header-title" id="desc-header-title">ポットサービスについて</span>
+      <button class="desc-toggle-btn" id="desc-toggle-btn" onclick="event.stopPropagation();toggleDesc()">閉じる ▲</button>
+    </div>
+    <div class="desc-body" id="desc-body">
+      <div class="desc-inner">
+        <div class="desc-content" id="desc-content"></div>
+        <img id="desc-img" class="desc-image" src="" alt="Tully's Coffee Pot Service">
+      </div>
     </div>
   </div>
 
@@ -125,27 +142,31 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
     <div class="field-error" id="err-payment">お支払い方法を選択してください。</div>
     <div class="invoice-fields" id="invoice-fields">
       <div class="field">
-        <label id="lbl-inv-name">請求書宛名</label>
+        <label id="lbl-inv-name">請求書宛名<span class="req">必須</span></label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
-          <input type="radio" name="invoice_name" id="in1" class="radio-option" onchange="toggleInvoiceName()">
+          <input type="radio" name="invoice_name" id="in1" class="radio-option" onchange="toggleInvoiceName();validateInvoiceName()">
           <label for="in1" class="radio-label">理化学研究所</label>
-          <input type="radio" name="invoice_name" id="in2" class="radio-option" onchange="toggleInvoiceName()">
+          <input type="radio" name="invoice_name" id="in2" class="radio-option" onchange="toggleInvoiceName();validateInvoiceName()">
           <label for="in2" class="radio-label" id="lbl-inv-other">その他</label>
         </div>
+        <div class="field-error" id="err-inv-name">請求書宛名を選択してください。</div>
         <div id="invoice-name-other" style="display:none">
-          <input type="text" id="in-inv-other" placeholder="宛名をご記入ください" style="margin-top:8px">
+          <input type="text" id="in-inv-other" placeholder="宛名をご記入ください" style="margin-top:8px" onblur="validateInvoiceOther()">
+          <div class="field-error" id="err-inv-other">宛名を入力してください。</div>
         </div>
       </div>
       <div class="field">
-        <label id="lbl-inv-format">請求書発行形式</label>
+        <label id="lbl-inv-format">請求書発行形式<span class="req">必須</span></label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
-          <input type="checkbox" id="inv1" class="cb-option">
+          <input type="checkbox" id="inv1" class="cb-option" onchange="validateInvoiceFormat()">
           <label for="inv1" class="cb-label">PDF（メール）</label>
-          <input type="checkbox" id="inv2" class="cb-option" onchange="toggleInvOther()">
+          <input type="checkbox" id="inv2" class="cb-option" onchange="toggleInvOther();validateInvoiceFormat()">
           <label for="inv2" class="cb-label" id="lbl-inv-format-other">その他</label>
         </div>
+        <div class="field-error" id="err-inv-format">請求書発行形式を選択してください。</div>
         <div id="inv-other-field" style="display:none">
-          <input type="text" id="in-inv-format-other" placeholder="発行形式をご記入ください" style="margin-top:8px">
+          <input type="text" id="in-inv-format-other" placeholder="発行形式をご記入ください" style="margin-top:8px" onblur="validateInvFormatOther()">
+          <div class="field-error" id="err-inv-format-other">発行形式を入力してください。</div>
         </div>
       </div>
     </div>
@@ -232,12 +253,39 @@ const content={
   }
 };
 
+function toggleDesc(){
+  const body=document.getElementById('desc-body');
+  const btn=document.getElementById('desc-toggle-btn');
+  const isOpen=!body.classList.contains('collapsed');
+  if(isOpen){
+    body.classList.add('collapsed');
+    btn.textContent=currentLang==='ja'?'開く ▼':'Show ▼';
+  } else {
+    body.classList.remove('collapsed');
+    btn.textContent=currentLang==='ja'?'閉じる ▲':'Hide ▲';
+  }
+}
+function toggleDesc(){
+  const body=document.getElementById('desc-body');
+  const btn=document.getElementById('desc-toggle-btn');
+  const isOpen=!body.classList.contains('collapsed');
+  if(isOpen){
+    body.classList.add('collapsed');
+    btn.textContent='▼ 詳細を見る';
+  } else {
+    body.classList.remove('collapsed');
+    btn.textContent='▲ 閉じる';
+  }
+}
 function setLang(lang){
   currentLang=lang;
   const c=content[lang];
   document.getElementById('form-title').innerHTML=c.title;
   document.getElementById('lang-link').innerHTML=c.langLink;
   document.getElementById('desc-content').innerHTML=c.desc;
+  document.getElementById('desc-header-title').textContent=lang==='ja'?'ポットサービスについて':'About the Pot Service';
+  const isCollapsed=document.getElementById('desc-body').classList.contains('collapsed');
+  document.getElementById('desc-toggle-btn').textContent=isCollapsed?(lang==='ja'?'開く ▼':'Show ▼'):(lang==='ja'?'閉じる ▲':'Hide ▲');
   document.getElementById('desc-img').alt=c.imgAlt;
   document.getElementById('lbl-order').textContent=c.orderSection;
   document.getElementById('btn-add').textContent=c.addBtn;
@@ -332,6 +380,34 @@ function validateField(inputId,errId){
   if(!val){errEl.classList.add('visible');document.getElementById(inputId).classList.add('error');}
   else{errEl.classList.remove('visible');document.getElementById(inputId).classList.remove('error');}
 }
+function validateInvoiceName(){
+  const in1=document.getElementById('in1').checked;
+  const in2=document.getElementById('in2').checked;
+  const errEl=document.getElementById('err-inv-name');
+  if(!in1&&!in2){if(errEl)errEl.classList.add('visible');}
+  else{if(errEl)errEl.classList.remove('visible');}
+}
+function validateInvoiceOther(){
+  const val=document.getElementById('in-inv-other').value.trim();
+  const errEl=document.getElementById('err-inv-other');
+  const input=document.getElementById('in-inv-other');
+  if(!val){if(errEl)errEl.classList.add('visible');input.classList.add('error');}
+  else{if(errEl)errEl.classList.remove('visible');input.classList.remove('error');}
+}
+function validateInvoiceFormat(){
+  const inv1=document.getElementById('inv1').checked;
+  const inv2=document.getElementById('inv2').checked;
+  const errEl=document.getElementById('err-inv-format');
+  if(!inv1&&!inv2){if(errEl)errEl.classList.add('visible');}
+  else{if(errEl)errEl.classList.remove('visible');}
+}
+function validateInvFormatOther(){
+  const val=document.getElementById('in-inv-format-other').value.trim();
+  const errEl=document.getElementById('err-inv-format-other');
+  const input=document.getElementById('in-inv-format-other');
+  if(!val){if(errEl)errEl.classList.add('visible');input.classList.add('error');}
+  else{if(errEl)errEl.classList.remove('visible');input.classList.remove('error');}
+}
 function toggleInvoiceFields(){
   const isInvoice=document.getElementById('p1').checked;
   document.getElementById('invoice-fields').style.display=isInvoice?'block':'none';
@@ -409,6 +485,34 @@ document.getElementById('btn-submit').addEventListener('click', async function()
   const payErrEl=document.getElementById('err-payment');
   if(!p1checked&&!p2checked){if(payErrEl)payErrEl.classList.add('visible');hasError=true;}
   else{if(payErrEl)payErrEl.classList.remove('visible');}
+
+  // Validate invoice fields if invoice payment selected
+  if(p1checked){
+    const in1=document.getElementById('in1').checked;
+    const in2=document.getElementById('in2').checked;
+    const invNameErr=document.getElementById('err-inv-name');
+    if(!in1&&!in2){if(invNameErr)invNameErr.classList.add('visible');hasError=true;}
+    else{if(invNameErr)invNameErr.classList.remove('visible');}
+    if(in2){
+      const otherVal=document.getElementById('in-inv-other').value.trim();
+      const invOtherErr=document.getElementById('err-inv-other');
+      const invOtherInput=document.getElementById('in-inv-other');
+      if(!otherVal){if(invOtherErr)invOtherErr.classList.add('visible');invOtherInput.classList.add('error');hasError=true;}
+      else{if(invOtherErr)invOtherErr.classList.remove('visible');invOtherInput.classList.remove('error');}
+    }
+    const inv1=document.getElementById('inv1').checked;
+    const inv2=document.getElementById('inv2').checked;
+    const invFmtErr=document.getElementById('err-inv-format');
+    if(!inv1&&!inv2){if(invFmtErr)invFmtErr.classList.add('visible');hasError=true;}
+    else{if(invFmtErr)invFmtErr.classList.remove('visible');}
+    if(inv2){
+      const fmtVal=document.getElementById('in-inv-format-other').value.trim();
+      const invFmtOtherErr=document.getElementById('err-inv-format-other');
+      const invFmtOtherInput=document.getElementById('in-inv-format-other');
+      if(!fmtVal){if(invFmtOtherErr)invFmtOtherErr.classList.add('visible');invFmtOtherInput.classList.add('error');hasError=true;}
+      else{if(invFmtOtherErr)invFmtOtherErr.classList.remove('visible');invFmtOtherInput.classList.remove('error');}
+    }
+  }
 
   if(hasError){
     document.querySelector('.error')||window.scrollTo({top:0,behavior:'smooth'});
