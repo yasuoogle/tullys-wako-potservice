@@ -59,6 +59,9 @@ textarea{resize:vertical}
 .submit-btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:.5rem}
 .submit-btn:hover{opacity:.88}
 .version-footer{text-align:center;font-size:11px;color:#bbb;margin-top:1.5rem;padding-bottom:1rem}
+.save-info-row{display:flex;align-items:center;gap:8px;margin-top:1rem;padding-top:1rem;border-top:0.5px solid #e8e7e3}
+.save-info-row input[type=checkbox]{width:16px;height:16px;min-width:16px;cursor:pointer;accent-color:#1D9E75}
+.save-info-row label{font-size:13px;color:#666;cursor:pointer;margin:0}
 .success-screen{display:none;padding:2rem 0;text-align:center}
 .success-title{font-size:20px;font-weight:500;text-align:center;line-height:1.6;margin-bottom:2rem}
 .success-msg{background:#fff;border:1px solid #e8e7e3;border-radius:12px;padding:1.5rem 1.75rem;font-size:14px;line-height:2;color:#333;text-align:left;margin-bottom:1.5rem}
@@ -135,6 +138,10 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
       <div class="field-error" id="err-tel">緊急連絡先を入力してください。</div>
       <div class="hint" id="hint-tel">当日ご連絡可能な電話番号をご入力ください。</div>
     </div>
+    <div class="save-info-row">
+      <input type="checkbox" id="save-info" onchange="toggleSaveInfo()">
+      <label for="save-info" id="lbl-save-info">☑ この情報を保存する</label>
+    </div>
   </div>
 
   <div class="section">
@@ -190,7 +197,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v1.8</div>
+  <div class="version-footer">v1.9</div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -242,7 +249,7 @@ const content={
     invName:'請求書宛名',invOther:'その他',invOtherPh:'宛名をご記入ください',
     invFormat:'請求書発行形式',invFormatOther:'その他',invFormatOtherPh:'発行形式をご記入ください',
     memoSection:'通信欄',memoLabel:'その他・備考',memoPh:'特記事項などがあればご自由にご記入ください。',
-    submit:'送信する',req:'必須',
+    submit:'送信する',req:'必須',saveInfo:'☑ この情報を保存する',
     descToggleOpen:'▼ 詳細を見る',descToggleClose:'▲ 閉じる',
     errDept:'部署名を入力してください。',errName:'お名前を入力してください。',
     errEmail:'メールアドレスを入力してください。',errTel:'緊急連絡先を入力してください。',
@@ -278,7 +285,7 @@ const content={
     invName:'Invoice recipient',invOther:'Other',invOtherPh:'Enter recipient name',
     invFormat:'Invoice format',invFormatOther:'Other',invFormatOtherPh:'Please describe',
     memoSection:'Additional Notes',memoLabel:'Notes / Remarks',memoPh:'Please enter any special requests or additional information.',
-    submit:'Submit',req:'Required',
+    submit:'Submit',req:'Required',saveInfo:'☑ Save my information',
     descToggleOpen:'▼ Show details',descToggleClose:'▲ Hide details',
     errDept:'Please enter your department / lab.',errName:'Please enter your name.',
     errEmail:'Please enter your email address.',errTel:'Please enter your emergency contact.',
@@ -354,6 +361,7 @@ function setLang(lang){
   document.getElementById('lbl-memo-content').textContent=c.memoLabel;
   document.getElementById('ta-memo').placeholder=c.memoPh;
   document.getElementById('btn-submit').textContent=c.submit;
+  document.getElementById('lbl-save-info').textContent=c.saveInfo;
 
   // Update toggle button
   const descBody=document.getElementById('desc-body');
@@ -494,6 +502,35 @@ function validateInvFormatOther(){
   if(!val){if(errEl)errEl.classList.add('visible');input.classList.add('error');}
   else{if(errEl)errEl.classList.remove('visible');input.classList.remove('error');}
 }
+function toggleSaveInfo(){
+  const save=document.getElementById('save-info').checked;
+  if(save){
+    saveOrdrerInfo();
+  } else {
+    localStorage.removeItem('tullys_orderer');
+  }
+}
+function saveOrdrerInfo(){
+  const data={
+    dept:document.getElementById('in-dept').value,
+    name:document.getElementById('in-name').value,
+    email:document.getElementById('in-email').value,
+    tel:document.getElementById('in-tel').value
+  };
+  localStorage.setItem('tullys_orderer',JSON.stringify(data));
+}
+function loadOrdrerInfo(){
+  try{
+    const saved=localStorage.getItem('tullys_orderer');
+    if(!saved)return;
+    const data=JSON.parse(saved);
+    if(data.dept)document.getElementById('in-dept').value=data.dept;
+    if(data.name)document.getElementById('in-name').value=data.name;
+    if(data.email)document.getElementById('in-email').value=data.email;
+    if(data.tel)document.getElementById('in-tel').value=data.tel;
+    document.getElementById('save-info').checked=true;
+  }catch(e){}
+}
 function toggleInvoiceFields(){
   const isInvoice=document.getElementById('p1').checked;
   document.getElementById('invoice-fields').style.display=isInvoice?'block':'none';
@@ -521,6 +558,7 @@ function toggleInvOther(){
 
 setLang('ja');
 addDelivery();
+loadOrdrerInfo();
 
 // EmailJS init
 window.addEventListener('load', function(){
@@ -654,6 +692,10 @@ document.getElementById('btn-submit').addEventListener('click', async function()
       body:JSON.stringify(params)
     });
 
+    // Save orderer info if checkbox checked
+    if(document.getElementById('save-info').checked){
+      saveOrdrerInfo();
+    }
     // Show success screen
     const sc=content[currentLang];
     document.getElementById('success-title').innerHTML=sc.title;
