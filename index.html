@@ -58,6 +58,14 @@ textarea{resize:vertical}
 .submit-btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:.5rem}
 .submit-btn:hover{opacity:.88}
 .version-footer{text-align:center;font-size:11px;color:#bbb;margin-top:1.5rem;padding-bottom:1rem}
+.success-screen{display:none;padding:2rem 0;text-align:center}
+.success-title{font-size:20px;font-weight:500;text-align:center;line-height:1.6;margin-bottom:2rem}
+.success-msg{background:#fff;border:1px solid #e8e7e3;border-radius:12px;padding:1.5rem 1.75rem;font-size:14px;line-height:2;color:#333;text-align:left;margin-bottom:1.5rem}
+.success-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-reorder{padding:12px 28px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn-reorder:hover{opacity:.88}
+.btn-close{padding:12px 28px;background:#fff;color:#555;border:1px solid #ccc;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:background .15s}
+.btn-close:hover{background:#f0f0ee}
 .desc-toggle{display:flex;justify-content:flex-end;margin-bottom:.5rem}
 .desc-toggle-btn{background:none;border:0.5px solid #ccc;border-radius:6px;padding:4px 10px;font-size:12px;color:#888;cursor:pointer;font-family:inherit;transition:all .15s}
 .desc-toggle-btn:hover{background:#f0f0ee;color:#555}
@@ -181,7 +189,24 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v1.0</div>
+  <div class="version-footer">v1.3</div>
+</div>
+
+<div class="success-screen" id="success-screen">
+  <div class="wrap">
+    <div class="success-title">タリーズコーヒー和光理化学研究所店<br>コーヒーポットサービス 注文フォーム</div>
+    <div class="success-msg">
+      この度はご注文ありがとうございます。いただいた内容にて承りました。<br><br>
+      回答のコピーがメールアドレスに届きますので、ご確認のほどお願いいたします。<br><br>
+      特にご注文内容に問題なく、個別の確認事項がない場合、こちらの確認メールにて返信に代えさせていただいております。<br><br>
+      お問い合わせなど、内容の確認が必要な場合は折返し、担当者より、ご連絡をさせていただきます。<br><br>
+      以上、よろしくお願いいたします。
+    </div>
+    <div class="success-btns">
+      <button class="btn-reorder" onclick="location.reload()">再度注文する</button>
+      <button class="btn-close" onclick="window.close()">閉じる</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -568,8 +593,10 @@ document.getElementById('btn-submit').addEventListener('click', async function()
       body:JSON.stringify(params)
     });
 
-    alert(currentLang==='ja'?'ご注文を受け付けました。確認メールをお送りしましたのでご確認ください。':'Your order has been received. A confirmation email has been sent.');
-    btn.textContent=currentLang==='ja'?'送信完了':'Sent';
+    // Show success screen
+    document.querySelector('.wrap').style.display='none';
+    document.getElementById('success-screen').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
   } catch(err){
     console.error(err);
     alert(currentLang==='ja'?'送信に失敗しました。時間をおいて再度お試しいただくか、直接お電話ください。（048-451-0153）':'Submission failed. Please try again or call us at 048-451-0153.');
