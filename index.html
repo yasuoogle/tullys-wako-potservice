@@ -190,22 +190,16 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v1.5</div>
+  <div class="version-footer">v1.6</div>
 </div>
 
 <div class="success-screen" id="success-screen">
   <div class="wrap">
-    <div class="success-title">タリーズコーヒー和光理化学研究所店<br>コーヒーポットサービス 注文フォーム</div>
-    <div class="success-msg">
-      この度はご注文ありがとうございます。いただいた内容にて承りました。<br><br>
-      回答のコピーがメールアドレスに届きますので、ご確認のほどお願いいたします。<br><br>
-      特にご注文内容に問題なく、個別の確認事項がない場合、こちらの確認メールにて返信に代えさせていただいております。<br><br>
-      お問い合わせなど、内容の確認が必要な場合は折返し、担当者より、ご連絡をさせていただきます。<br><br>
-      以上、よろしくお願いいたします。
-    </div>
+    <div class="success-title" id="success-title">タリーズコーヒー和光理化学研究所店<br>コーヒーポットサービス 注文フォーム</div>
+    <div class="success-msg" id="success-msg"></div>
     <div class="success-btns">
-      <button class="btn-reorder" onclick="location.reload()">再度注文する</button>
-      <button class="btn-close" onclick="window.close()">閉じる</button>
+      <button class="btn-reorder" id="btn-reorder" onclick="location.reload()">再度注文する</button>
+      <button class="btn-close" id="btn-close" onclick="window.close()">閉じる</button>
     </div>
   </div>
 </div>
@@ -248,7 +242,16 @@ const content={
     invName:'請求書宛名',invOther:'その他',invOtherPh:'宛名をご記入ください',
     invFormat:'請求書発行形式',invFormatOther:'その他',invFormatOtherPh:'発行形式をご記入ください',
     memoSection:'通信欄',memoLabel:'その他・備考',memoPh:'特記事項などがあればご自由にご記入ください。',
-    submit:'送信する',req:'必須'
+    submit:'送信する',req:'必須',
+    descToggleOpen:'▼ 詳細を見る',descToggleClose:'▲ 閉じる',
+    errDept:'部署名を入力してください。',errName:'お名前を入力してください。',
+    errEmail:'メールアドレスを入力してください。',errTel:'緊急連絡先を入力してください。',
+    errPayment:'お支払い方法を選択してください。',
+    errInvName:'請求書宛名を選択してください。',errInvOther:'宛名を入力してください。',
+    errInvFormat:'請求書発行形式を選択してください。',errInvFormatOther:'発行形式を入力してください。',
+    errDatetime:'日付と時刻を選択してください。',errContent:'受渡内容を入力してください。',
+    successMsg:`<p>この度はご注文ありがとうございます。いただいた内容にて承りました。</p><p>回答のコピーがメールアドレスに届きますので、ご確認のほどお願いいたします。</p><p>特にご注文内容に問題なく、個別の確認事項がない場合、こちらの確認メールにて返信に代えさせていただいております。</p><p>お問い合わせなど、内容の確認が必要な場合は折返し、担当者より、ご連絡をさせていただきます。</p><p>以上、よろしくお願いいたします。</p>`,
+    reorderBtn:'再度注文する',closeBtn:'閉じる'
   },
   en:{
     title:'Tully\'s Coffee Wako RIKEN Store<br>Coffee Pot Service Order Form',
@@ -266,16 +269,25 @@ const content={
 </div>
 <p style="margin-top:.7rem"><strong>🏡 Hours</strong>　Weekdays 8:30–18:30 / Sat 11:30–15:30 / Sun & Holidays closed<br><span style="font-size:12.5px;color:#888">* Orders outside business hours are available upon request.</span></p>
 <div class="shop-info">Tully's Coffee Wako RIKEN Store<br>phone: 048-451-0153　email: <a href="mailto:manager@tullys-wako.jp">manager@tullys-wako.jp</a><br>Website: <a href="https://www.tullys-wako.jp" target="_blank">https://www.tullys-wako.jp</a></div>`,
-    orderSection:'Order Information',addBtn:'＋ Add delivery',dateLabel:'Delivery date & time',contentLabel:'Order contents',
-    contentPlaceholder:'e.g. Regular coffee × 2 pots, cups × 20',
+    orderSection:'Order Details',addBtn:'＋ Add order',dateLabel:'Delivery date & time',contentLabel:'Order contents',
+    contentPlaceholder:'e.g. Hot coffee × 2, Iced coffee × 2',
     foodSection:'Food',foodContent:'Food items',foodPlaceholder:'e.g. Sandwiches × 10, Muffins × 5',
-    ordererSection:'Orderer Information',dept:'Department',deptPh:'e.g. Sales',name:'Name',namePh:'e.g. Taro Yamada',
+    ordererSection:'Contact Information',dept:'Department / Lab',deptPh:'e.g. XX Laboratory',name:'Name',namePh:'e.g. Taro Yamada',
     email:'Email address',tel:'Emergency contact',telPh:'e.g. 090-0000-0000',telHint:'Please provide a phone number reachable on the day.',
     paymentSection:'Payment',paymentLabel:'Payment method',p1:'Invoice (pay later)',p2:'Pay at store',
     invName:'Invoice recipient',invOther:'Other',invOtherPh:'Enter recipient name',
-    invFormat:'Invoice format',invFormatOther:'Other',invFormatOtherPh:'Describe the format',
-    memoSection:'Notes',memoLabel:'Additional notes',memoPh:'Feel free to add any special requests or notes.',
-    submit:'Submit',req:'Required'
+    invFormat:'Invoice format',invFormatOther:'Other',invFormatOtherPh:'Please describe',
+    memoSection:'Additional Notes',memoLabel:'Notes / Remarks',memoPh:'Please enter any special requests or additional information.',
+    submit:'Submit',req:'Required',
+    descToggleOpen:'▼ Show details',descToggleClose:'▲ Hide details',
+    errDept:'Please enter your department / lab.',errName:'Please enter your name.',
+    errEmail:'Please enter your email address.',errTel:'Please enter your emergency contact.',
+    errPayment:'Please select a payment method.',
+    errInvName:'Please select an invoice recipient.',errInvOther:'Please enter the recipient name.',
+    errInvFormat:'Please select an invoice format.',errInvFormatOther:'Please describe the format.',
+    errDatetime:'Please select a date and time.',errContent:'Please enter order contents.',
+    successMsg:`<p>Thank you for your order. We have received your request.</p><p>A copy of your order confirmation will be sent to your email address. Please check your inbox.</p><p>If there are no issues with your order and no individual follow-up is needed, this confirmation email will serve as our reply.</p><p>If we need to confirm any details, a staff member will contact you directly.</p><p>Thank you for your understanding.</p>`,
+    reorderBtn:'Order again',closeBtn:'Close'
   }
 };
 
@@ -294,13 +306,14 @@ function toggleDesc(){
 function toggleDesc(){
   const body=document.getElementById('desc-body');
   const btn=document.getElementById('desc-toggle-btn');
+  const c=content[currentLang];
   const isOpen=!body.classList.contains('collapsed');
   if(isOpen){
     body.classList.add('collapsed');
-    btn.textContent='▼ 詳細を見る';
+    btn.textContent=c.descToggleOpen;
   } else {
     body.classList.remove('collapsed');
-    btn.textContent='▲ 閉じる';
+    btn.textContent=c.descToggleClose;
   }
 }
 function setLang(lang){
@@ -341,6 +354,28 @@ function setLang(lang){
   document.getElementById('lbl-memo-content').textContent=c.memoLabel;
   document.getElementById('ta-memo').placeholder=c.memoPh;
   document.getElementById('btn-submit').textContent=c.submit;
+
+  // Update toggle button
+  const descBody=document.getElementById('desc-body');
+  const descBtn=document.getElementById('desc-toggle-btn');
+  if(descBody&&descBtn){
+    descBtn.textContent=descBody.classList.contains('collapsed')?c.descToggleOpen:c.descToggleClose;
+  }
+
+  // Update inline error messages
+  const errMap={
+    'err-dept':c.errDept,'err-name':c.errName,'err-email':c.errEmail,'err-tel':c.errTel,
+    'err-payment':c.errPayment,'err-inv-name':c.errInvName,'err-inv-other':c.errInvOther,
+    'err-inv-format':c.errInvFormat,'err-inv-format-other':c.errInvFormatOther
+  };
+  Object.entries(errMap).forEach(([id,msg])=>{const el=document.getElementById(id);if(el)el.textContent=msg;});
+
+  // Update invoice required labels
+  const invNameLabel=document.getElementById('lbl-inv-name');
+  if(invNameLabel)invNameLabel.innerHTML=c.invName+`<span class="req">${c.req}</span>`;
+  const invFormatLabel=document.getElementById('lbl-inv-format');
+  if(invFormatLabel)invFormatLabel.innerHTML=c.invFormat+`<span class="req">${c.req}</span>`;
+
   document.querySelectorAll('.delivery-block').forEach(block=>{
     const labels=block.querySelectorAll('label');
     if(labels[0])labels[0].innerHTML=c.dateLabel+`<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span>`;
@@ -595,6 +630,11 @@ document.getElementById('btn-submit').addEventListener('click', async function()
     });
 
     // Show success screen
+    const sc=content[currentLang];
+    document.getElementById('success-title').innerHTML=sc.title;
+    document.getElementById('success-msg').innerHTML=sc.successMsg;
+    document.getElementById('btn-reorder').textContent=sc.reorderBtn;
+    document.getElementById('btn-close').textContent=sc.closeBtn;
     document.querySelector('.wrap').style.display='none';
     document.getElementById('success-screen').style.display='block';
     window.scrollTo({top:0,behavior:'smooth'});
