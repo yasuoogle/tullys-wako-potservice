@@ -716,10 +716,12 @@ document.getElementById('btn-submit').addEventListener('click', async function()
   // Collect delivery info
   let orderDetails='';
   document.querySelectorAll('.delivery-block').forEach((block,i)=>{
-    const inputs=block.querySelectorAll('input[type=date],select,textarea');
-    const date=inputs[0]?inputs[0].value:'';
-    const time=inputs[1]?inputs[1].value:'';
-    const detail=inputs[2]?inputs[2].value:'';
+    const dateInput=block.querySelector('input[type=date]');
+    const timeSelect=block.querySelector('select');
+    const contentTa=block.querySelector('textarea');
+    const date=dateInput?dateInput.value:'';
+    const time=timeSelect?timeSelect.value:'';
+    const detail=contentTa?contentTa.value:'';
     if(date||detail) orderDetails+=`[${i+1}] ${date} ${time}\n${detail}\n`;
   });
 
