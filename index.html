@@ -41,7 +41,7 @@ label{display:block;font-size:14px;font-weight:500;margin-bottom:5px}
 .req{color:#D85A30;font-size:12px;margin-left:4px}
 input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;font-size:14px;font-family:inherit;transition:border-color .15s;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75;box-shadow:0 0 0 2px rgba(29,158,117,.12)}
-textarea{resize:vertical}.ta-auto-resize{resize:none;overflow:hidden;min-height:60px}
+textarea{resize:vertical}.ta-auto-resize{resize:none;overflow:hidden;min-height:120px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .datetime-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .delivery-block{border:1px solid #e8e7e3;border-radius:8px;padding:12px;margin-bottom:8px;position:relative}
@@ -61,8 +61,8 @@ textarea{resize:vertical}.ta-auto-resize{resize:none;overflow:hidden;min-height:
 .submit-btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:.5rem}
 .submit-btn:hover{opacity:.88}
 .version-footer{text-align:center;font-size:11px;color:#bbb;margin-top:1.5rem;padding-bottom:1rem}
-.drink-selector{background:#f9f9f7;border:1px solid #e8e7e3;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.drink-select{flex:1;min-width:140px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;-webkit-appearance:none}
+.drink-selector{background:#f9f9f7;border:1px solid #e8e7e3;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
+.drink-select{flex:1;min-width:0;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;-webkit-appearance:none}
 .drink-qty{width:75px;min-width:75px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;-webkit-appearance:none}
 .drink-x{font-size:13px;color:#888;flex-shrink:0}
 .drink-add-btn{padding:7px 14px;border:1px solid #1D9E75;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#1D9E75;font-family:inherit;font-weight:500;transition:background .15s;white-space:nowrap}
@@ -115,7 +115,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   <div class="section">
     <div class="section-label" id="lbl-order">ご注文情報</div>
     <div id="delivery-list"></div>
-    <button class="add-btn" onclick="addDelivery()" id="btn-add">＋ 受渡を追加</button>
+    <button class="add-btn" onclick="addDelivery()" id="btn-add">＋ 注文を追加</button>
   </div>
 
   <div class="section">
@@ -210,7 +210,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v3.1</div>
+  <div class="version-footer">v3.7</div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -252,8 +252,8 @@ const content={
 </div>
 <p style="margin-top:.7rem"><strong>🏡 営業時間</strong>　平日8:30-18:30／土11:30-15:30／日祝休<br><span style="font-size:12.5px;color:#888">※早朝、夜など営業時間外のご注文は応相談となります。</span></p>
 <div class="shop-info">タリーズコーヒー和光理化学研究所店<br>phone: 048-451-0153　email: <a href="mailto:manager@tullys-wako.jp">manager@tullys-wako.jp</a><br>Website: <a href="https://www.tullys-wako.jp" target="_blank">https://www.tullys-wako.jp</a></div>`,
-    orderSection:'注文情報',addBtn:'＋ 受渡情報を追加',dateLabel:'受渡日時',contentLabel:'受渡内容',
-    contentPlaceholder:'ご注文内容をご記入ください（例：ホットコーヒーｘ２　アイスコーヒーｘ２など）',
+    orderSection:'注文情報',addBtn:'＋ 注文情報を追加',dateLabel:'注文日時',contentLabel:'注文内容',
+    contentPlaceholder:'注文内容をご記入ください。\n例）\nホットコーヒーｘ3\nアイスコーヒーｘ3\n手入力でも編集できます。',
     foodSection:'フード',foodContent:'フードの内容',foodPlaceholder:'ご希望のフードがあればご記入ください（例：サンドイッチ×10、マフィン×5 など）',
     ordererSection:'注文者情報',dept:'部署名',deptPh:'例：◯◯研究室',name:'お名前',namePh:'例：山田 太郎',
     email:'メールアドレス',tel:'緊急連絡先',telPh:'例：090-0000-0000',telHint:'当日ご連絡可能な電話番号をご入力ください。',
@@ -268,7 +268,7 @@ const content={
     errPayment:'お支払い方法を選択してください。',
     errInvName:'請求書宛名を選択してください。',errInvOther:'宛名を入力してください。',
     errInvFormat:'請求書発行形式を選択してください。',errInvFormatOther:'発行形式を入力してください。',
-    errDatetime:'日付と時刻を選択してください。',errContent:'受渡内容を入力してください。',
+    errDatetime:'日付と時刻を選択してください。',errContent:'注文内容を入力してください。',
     successMsg:`<p>この度はご注文ありがとうございます。いただいた内容にて承りました。</p><p>回答のコピーがメールアドレスに届きますので、ご確認のほどお願いいたします。</p><p>特にご注文内容に問題なく、個別の確認事項がない場合、こちらの確認メールにて返信に代えさせていただいております。</p><p>お問い合わせなど、内容の確認が必要な場合は折返し、担当者より、ご連絡をさせていただきます。</p><p>以上、よろしくお願いいたします。</p>`,
     reorderBtn:'再度注文する',closeBtn:'閉じる'
   },
@@ -339,7 +339,7 @@ const drinkOptionsEn = ['Hot Coffee','Iced Coffee','Hot Tea','Iced Tea'];
 
 function buildDrinkSelect(lang, selectedVal='') {
   const opts = lang==='en' ? drinkOptionsEn : drinkOptions;
-  const ph = lang==='en' ? 'Select drink' : '種類を選ぶ';
+  const ph = lang==='en' ? 'Select drink' : 'ポットの種類を選ぶ';
   let html = `<option value="">${ph}</option>`;
   opts.forEach((o,i) => {
     const val = drinkOptions[i];
@@ -491,7 +491,7 @@ function addDelivery(){
         <select class="drink-qty" id="drink-qty-${id}"></select>
         <button class="drink-add-btn" onclick="appendDrinkToContent('${id}');return false;">追加 ▼</button>
       </div>
-      <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')" id="ta-content-${id}" class="ta-auto-resize" oninput="autoResize(this)"></textarea>
+      <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')" id="ta-content-${id}" class="ta-auto-resize" oninput="autoResize(this)" rows="6"></textarea>
       <div class="field-error" id="err-content-${id}">${c.errContent}</div>
     </div>`;
   document.getElementById('delivery-list').appendChild(div);
