@@ -41,7 +41,7 @@ label{display:block;font-size:14px;font-weight:500;margin-bottom:5px}
 .req{color:#D85A30;font-size:12px;margin-left:4px}
 input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea{width:100%;padding:9px 11px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;font-size:14px;font-family:inherit;transition:border-color .15s;-webkit-appearance:none}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75;box-shadow:0 0 0 2px rgba(29,158,117,.12)}
-textarea{resize:vertical}
+textarea{resize:vertical}.ta-auto-resize{resize:none;overflow:hidden;min-height:60px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .datetime-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .delivery-block{border:1px solid #e8e7e3;border-radius:8px;padding:12px;margin-bottom:8px;position:relative}
@@ -61,6 +61,13 @@ textarea{resize:vertical}
 .submit-btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:.5rem}
 .submit-btn:hover{opacity:.88}
 .version-footer{text-align:center;font-size:11px;color:#bbb;margin-top:1.5rem;padding-bottom:1rem}
+.drink-selector{background:#f9f9f7;border:1px solid #e8e7e3;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.drink-select{flex:1;min-width:140px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;-webkit-appearance:none}
+.drink-qty{width:75px;min-width:75px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;-webkit-appearance:none}
+.drink-x{font-size:13px;color:#888;flex-shrink:0}
+.drink-add-btn{padding:7px 14px;border:1px solid #1D9E75;border-radius:6px;background:#fff;cursor:pointer;font-size:13px;color:#1D9E75;font-family:inherit;font-weight:500;transition:background .15s;white-space:nowrap}
+.drink-add-btn:hover{background:#E1F5EE}
+.drink-divider{border:none;border-top:1px dashed #e0e0dd;margin:8px 0 6px}
 .save-info-row{display:flex;align-items:center;gap:8px;margin-top:1rem;padding-top:1rem;border-top:0.5px solid #e8e7e3}
 .save-info-row input[type=checkbox]{width:16px;height:16px;min-width:16px;cursor:pointer;accent-color:#1D9E75}
 .highlight-box{display:inline-block;border:2px solid #1D9E75;border-radius:8px;padding:.6rem 1rem;margin:.5rem 0;font-size:1rem;line-height:1.8;background:#f7fdfb}
@@ -203,7 +210,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v2.5</div>
+  <div class="version-footer">v3.0</div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -327,6 +334,53 @@ function toggleDesc(){
     btn.textContent=c.descToggleClose;
   }
 }
+const drinkOptions = ['ホットコーヒー','アイスコーヒー','ホットティー','アイスティー'];
+const drinkOptionsEn = ['Hot Coffee','Iced Coffee','Hot Tea','Iced Tea'];
+
+function buildDrinkSelect(lang, selectedVal='') {
+  const opts = lang==='en' ? drinkOptionsEn : drinkOptions;
+  const ph = lang==='en' ? 'Select drink' : '種類を選ぶ';
+  let html = `<option value="">${ph}</option>`;
+  opts.forEach((o,i) => {
+    const val = drinkOptions[i];
+    html += `<option value="${val}"${selectedVal===val?' selected':''}>${o}</option>`;
+  });
+  return html;
+}
+
+function buildQtySelect(selectedVal='') {
+  let html = '<option value="">本数</option>';
+  for(let i=1;i<=10;i++) html += `<option value="${i}"${selectedVal==i?' selected':''}>${i}</option>`;
+  return html;
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function appendDrinkToContent(blockId) {
+  const sel = document.getElementById('drink-sel-' + blockId);
+  const qty = document.getElementById('drink-qty-' + blockId);
+  const ta = document.getElementById('ta-content-' + blockId);
+  if(!sel||!qty||!ta) return;
+  const drink = sel.value;
+  const qtyVal = qty.value;
+  if(!drink || !qtyVal) {
+    alert(currentLang==='ja'?'種類と本数を選んでください。':'Please select a drink and quantity.');
+    return;
+  }
+  const line = drink + '×' + qtyVal;
+  ta.value = ta.value ? ta.value + '\n' + line : line;
+  // reset selects
+  sel.value = '';
+  qty.value = '';
+  // clear validation error
+  const errEl = document.getElementById('err-content-' + blockId);
+  if(errEl){errEl.classList.remove('visible');ta.classList.remove('error');}
+  autoResize(ta);
+}
+
 function setLang(lang){
   currentLang=lang;
   const c=content[lang];
@@ -431,10 +485,21 @@ function addDelivery(){
     </div>
     <div class="field" style="margin:0">
       <label style="font-size:13px">${c.contentLabel}<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span></label>
-      <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')"></textarea>
+      <div class="drink-selector" id="drink-selector-${id}">
+        <select class="drink-select" id="drink-sel-${id}"></select>
+        <span class="drink-x">×</span>
+        <select class="drink-qty" id="drink-qty-${id}"></select>
+        <button class="drink-add-btn" onclick="appendDrinkToContent('${id}');return false;">追加 ▼</button>
+      </div>
+      <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')" id="ta-content-${id}" class="ta-auto-resize" oninput="autoResize(this)"></textarea>
       <div class="field-error" id="err-content-${id}">${c.errContent}</div>
     </div>`;
   document.getElementById('delivery-list').appendChild(div);
+  // Populate drink selects after DOM insertion
+  const drinkSel = document.getElementById('drink-sel-' + id);
+  const qtySelEl = document.getElementById('drink-qty-' + id);
+  if(drinkSel) drinkSel.innerHTML = buildDrinkSelect(currentLang);
+  if(qtySelEl) qtySelEl.innerHTML = buildQtySelect();
 
   // Set previous values after appending to DOM
   if(prevDate||prevTime||prevContent){
