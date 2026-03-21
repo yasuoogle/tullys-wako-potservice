@@ -223,7 +223,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">確認する</button>
-  <div class="version-footer">v4.4</div>
+  <div class="version-footer">v4.5</div>
 </div>
 
 <div class="confirm-screen" id="confirm-screen">
@@ -243,7 +243,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
     <div class="success-msg" id="success-msg"></div>
     <div class="success-btns">
       <button class="btn-reorder" id="btn-reorder" onclick="location.reload()">再度注文する</button>
-      <button class="btn-close" id="btn-close" onclick="window.close()">閉じる</button>
+      <a class="btn-close" id="btn-close" href="https://www.tullys-wako.jp/" style="text-decoration:none;display:inline-block;text-align:center">ホームに戻る</a>
     </div>
   </div>
 </div>
@@ -294,7 +294,7 @@ const content={
     errInvFormat:'請求書発行形式を選択してください。',errInvFormatOther:'発行形式を入力してください。',
     errDatetime:'日付と時刻を選択してください。',errContent:'注文内容を入力してください。',
     successMsg:`<p>この度はご注文ありがとうございます。いただいた内容にて承りました。</p><p>回答のコピーがメールアドレスに届きますので、ご確認のほどお願いいたします。</p><p>特にご注文内容に問題なく、個別の確認事項がない場合、こちらの確認メールにて返信に代えさせていただいております。</p><p>お問い合わせなど、内容の確認が必要な場合は折返し、担当者より、ご連絡をさせていただきます。</p><p>以上、よろしくお願いいたします。</p>`,
-    reorderBtn:'再度注文する',closeBtn:'閉じる'
+    reorderBtn:'再度注文する',closeBtn:'ホームに戻る'
   },
   en:{
     title:'Tully\'s Coffee Wako RIKEN Store<br>Coffee Pot Service Order Form',
@@ -329,7 +329,7 @@ const content={
     errInvFormat:'Please select an invoice format.',errInvFormatOther:'Please describe the format.',
     errDatetime:'Please select a date and time.',errContent:'Please enter order contents.',
     successMsg:`<p>Thank you for your order. We have received your request.</p><p>A copy of your order confirmation will be sent to your email address. Please check your inbox.</p><p>If there are no issues with your order and no individual follow-up is needed, this confirmation email will serve as our reply.</p><p>If we need to confirm any details, a staff member will contact you directly.</p><p>Thank you for your understanding.</p>`,
-    reorderBtn:'Order again',closeBtn:'Close'
+    reorderBtn:'Order again',closeBtn:'Home'
   }
 };
 
@@ -840,7 +840,7 @@ document.getElementById('btn-send').addEventListener('click', async function() {
     document.getElementById('success-title').innerHTML=sc.title;
     document.getElementById('success-msg').innerHTML=sc.successMsg;
     document.getElementById('btn-reorder').textContent=sc.reorderBtn;
-    document.getElementById('btn-close').textContent=sc.closeBtn;
+    const btnClose=document.getElementById('btn-close');if(btnClose)btnClose.textContent=sc.closeBtn;
     document.getElementById('confirm-screen').style.display='none';
     document.getElementById('success-screen').style.display='block';
     window.scrollTo({top:0,behavior:'smooth'});
