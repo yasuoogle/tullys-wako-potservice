@@ -61,6 +61,17 @@ textarea{resize:vertical}.ta-auto-resize{resize:none;overflow:hidden;min-height:
 .submit-btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s;margin-top:.5rem}
 .submit-btn:hover{opacity:.88}
 .version-footer{text-align:center;font-size:11px;color:#bbb;margin-top:1.5rem;padding-bottom:1rem}
+.confirm-screen{display:none}
+.confirm-screen .wrap{padding:1.5rem 1rem}
+.confirm-title{font-size:15px;font-weight:700;color:#1D9E75;margin-bottom:1.2rem;text-align:center}
+.confirm-table{width:100%;border-collapse:collapse;margin-bottom:1.5rem;font-size:13px}
+.confirm-table th{width:35%;background:#f5f5f2;padding:10px 12px;text-align:left;font-weight:600;color:#555;border:1px solid #e5e5e0;vertical-align:top}
+.confirm-table td{padding:10px 12px;border:1px solid #e5e5e0;vertical-align:top;white-space:pre-wrap;word-break:break-word;color:#1a1a1a}
+.confirm-btns{display:flex;gap:10px;margin-top:1rem}
+.btn-back{flex:1;padding:13px;background:#fff;color:#555;border:1px solid #ccc;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn-back:hover{background:#f5f5f2}
+.btn-send{flex:2;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn-send:hover{opacity:.88}
 .drink-selector{background:#f9f9f7;border:1px solid #e8e7e3;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
 .drink-select{flex:1;min-width:0;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;-webkit-appearance:none}
 .drink-qty{width:75px;min-width:75px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:inherit;background:#fff;-webkit-appearance:none}
@@ -209,8 +220,19 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
     </div>
   </div>
 
-  <button class="submit-btn" id="btn-submit">送信する</button>
-  <div class="version-footer">v3.7</div>
+  <button class="submit-btn" id="btn-submit">確認する</button>
+  <div class="version-footer">v3.8</div>
+</div>
+
+<div class="confirm-screen" id="confirm-screen">
+  <div class="wrap">
+    <div class="confirm-title" id="confirm-title">注文内容の確認</div>
+    <table class="confirm-table" id="confirm-table"></table>
+    <div class="confirm-btns">
+      <button class="btn-back" id="btn-back" onclick="backToForm()">修正する</button>
+      <button class="btn-send" id="btn-send">送信する</button>
+    </div>
+  </div>
 </div>
 
 <div class="success-screen" id="success-screen">
@@ -261,7 +283,7 @@ const content={
     invName:'請求書宛名',invOther:'その他',invOtherPh:'宛名をご記入ください',
     invFormat:'請求書発行形式',invFormatOther:'その他',invFormatOtherPh:'発行形式をご記入ください',
     memoSection:'通信欄',memoLabel:'その他・備考',memoPh:'特記事項などがあればご自由にご記入ください。',
-    submit:'送信する',req:'必須',saveInfo:'この情報を保存する',
+    submit:'確認する',req:'必須',saveInfo:'この情報を保存する',
     descToggleOpen:'▼ 詳細を見る',descToggleClose:'▲ 閉じる',
     errDept:'部署名を入力してください。',errName:'お名前を入力してください。',
     errEmail:'メールアドレスを入力してください。',errTel:'緊急連絡先を入力してください。',
@@ -732,7 +754,8 @@ document.getElementById('btn-submit').addEventListener('click', async function()
   const invName=document.getElementById('in1').checked?'理化学研究所':document.getElementById('in2').checked?document.getElementById('in-inv-other').value:'';
   const invFormat=document.getElementById('inv1').checked?'PDF（メール）':document.getElementById('inv2').checked?document.getElementById('in-inv-format-other').value:'';
 
-  const params={
+  // Build params
+  window._submitParams={
     user_name:name,
     user_email:email,
     dept:dept,
@@ -745,9 +768,45 @@ document.getElementById('btn-submit').addEventListener('click', async function()
     memo:memo||'（なし）'
   };
 
-  const btn=document.getElementById('btn-submit');
+  // Show confirm screen
+  showConfirm(window._submitParams);
+});
+
+function showConfirm(params) {
+  const rows = [
+    ['注文情報', params.order_details],
+    ['フード', params.food],
+    ['部署名', params.dept],
+    ['お名前', params.user_name],
+    ['メールアドレス', params.user_email],
+    ['緊急連絡先', params.tel],
+    ['お支払い方法', params.payment],
+    ['請求書宛名', params.invoice_name],
+    ['請求書発行形式', params.invoice_format],
+    ['通信欄', params.memo],
+  ];
+  const table = document.getElementById('confirm-table');
+  table.innerHTML = rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+  document.querySelector('.wrap').style.display='none';
+  document.getElementById('confirm-screen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function backToForm() {
+  document.getElementById('confirm-screen').style.display='none';
+  document.querySelector('.wrap').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('btn-send').addEventListener('click', async function() {
+  const params = window._submitParams;
+  if(!params) return;
+  const btn = document.getElementById('btn-send');
   btn.disabled=true;
   btn.textContent=currentLang==='ja'?'送信中...':'Sending...';
+  const c=content[currentLang];
+  // dummy for compat
+  const dummy_btn = {disabled:false, textContent:''};
 
   try {
     // Send confirmation to customer
@@ -780,14 +839,14 @@ document.getElementById('btn-submit').addEventListener('click', async function()
     document.getElementById('success-msg').innerHTML=sc.successMsg;
     document.getElementById('btn-reorder').textContent=sc.reorderBtn;
     document.getElementById('btn-close').textContent=sc.closeBtn;
-    document.querySelector('.wrap').style.display='none';
+    document.getElementById('confirm-screen').style.display='none';
     document.getElementById('success-screen').style.display='block';
     window.scrollTo({top:0,behavior:'smooth'});
   } catch(err){
     console.error(err);
     alert(currentLang==='ja'?'送信に失敗しました。時間をおいて再度お試しいただくか、直接お電話ください。（048-451-0153）':'Submission failed. Please try again or call us at 048-451-0153.');
     btn.disabled=false;
-    btn.textContent=c.submit;
+    btn.textContent='送信する';
   }
 });
 </script>
