@@ -223,7 +223,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">確認する</button>
-  <div class="version-footer">v4.5</div>
+  <div class="version-footer">v4.6</div>
 </div>
 
 <div class="confirm-screen" id="confirm-screen">
@@ -812,9 +812,9 @@ document.getElementById('btn-send').addEventListener('click', async function() {
 
   try {
     // Send confirmation to customer
-    await emailjs.send('service_10si8uf','template_hhcxk28',params);
+    await emailjs.send('service_9zvb6pg','template_hhcxk28',params);
     // Send notification to store
-    await emailjs.send('service_10si8uf','template_dojv4p9',params);
+    await emailjs.send('service_9zvb6pg','template_dojv4p9',params);
 
     // Submit to Formspree
     await fetch('https://formspree.io/f/mpqyogal',{
