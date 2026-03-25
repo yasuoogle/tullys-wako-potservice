@@ -187,7 +187,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
         <label id="lbl-inv-name">請求書宛名<span class="req">必須</span></label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
           <input type="radio" name="invoice_name" id="in1" class="radio-option" onchange="toggleInvoiceName();validateInvoiceName()">
-          <label for="in1" class="radio-label">理化学研究所</label>
+          <label for="in1" class="radio-label" id="lbl-in1">理化学研究所</label>
           <input type="radio" name="invoice_name" id="in2" class="radio-option" onchange="toggleInvoiceName();validateInvoiceName()">
           <label for="in2" class="radio-label" id="lbl-inv-other">その他</label>
         </div>
@@ -201,7 +201,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
         <label id="lbl-inv-format">請求書発行形式<span class="req">必須</span></label>
         <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
           <input type="radio" name="invoice_format" id="inv1" class="radio-option" onchange="validateInvoiceFormat()">
-          <label for="inv1" class="radio-label">PDF（メール）</label>
+          <label for="inv1" class="radio-label" id="lbl-inv1">PDF（メール）</label>
           <input type="radio" name="invoice_format" id="inv2" class="radio-option" onchange="toggleInvOther();validateInvoiceFormat()">
           <label for="inv2" class="radio-label" id="lbl-inv-format-other">その他</label>
         </div>
@@ -223,7 +223,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">確認する</button>
-  <div class="version-footer">v4.8</div>
+  <div class="version-footer">v4.9</div>
 </div>
 
 <div class="confirm-screen" id="confirm-screen">
@@ -282,8 +282,8 @@ const content={
     ordererSection:'注文者情報',dept:'部署名',deptPh:'例：◯◯研究室',name:'お名前',namePh:'例：山田 太郎',
     email:'メールアドレス',emailPh:'example@riken.jp',tel:'緊急連絡先',telPh:'例：090-0000-0000',telHint:'当日ご連絡可能な電話番号をご入力ください。',
     paymentSection:'お支払い情報',paymentLabel:'お支払い方法',p1:'請求書払い（後払い）',p2:'店頭払い',
-    invName:'請求書宛名',invOther:'その他',invOtherPh:'宛名をご記入ください',
-    invFormat:'請求書発行形式',invFormatOther:'その他',invFormatOtherPh:'発行形式をご記入ください',
+    invName:'請求書宛名',invNameRiken:'理化学研究所',invOther:'その他',invOtherPh:'宛名をご記入ください',
+    invFormat:'請求書発行形式',invFormatPdf:'PDF（メール）',invFormatOther:'その他',invFormatOtherPh:'発行形式をご記入ください',
     memoSection:'通信欄',memoLabel:'その他・備考',memoPh:'特記事項などがあればご自由にご記入ください。',
     submit:'確認する',req:'必須',saveInfo:'この情報を保存する',
     descToggleOpen:'▼ 詳細を見る',descToggleClose:'▲ 閉じる',
@@ -317,8 +317,8 @@ const content={
     ordererSection:'Contact Information',dept:'Department / Lab',deptPh:'e.g. XX Laboratory',name:'Name',namePh:'e.g. Taro Yamada',
     email:'Email address',emailPh:'e.g. example@riken.jp',tel:'Emergency contact',telPh:'e.g. 090-0000-0000',telHint:'Please provide a phone number reachable on the day.',
     paymentSection:'Payment',paymentLabel:'Payment method',p1:'Invoice (pay later)',p2:'Pay at store',
-    invName:'Invoice recipient',invOther:'Other',invOtherPh:'Enter recipient name',
-    invFormat:'Invoice format',invFormatOther:'Other',invFormatOtherPh:'Please describe',
+    invName:'Invoice recipient',invNameRiken:'RIKEN',invOther:'Other',invOtherPh:'Enter recipient name',
+    invFormat:'Invoice format',invFormatPdf:'PDF (Email)',invFormatOther:'Other',invFormatOtherPh:'Please describe',
     memoSection:'Additional Notes',memoLabel:'Notes / Remarks',memoPh:'Please enter any special requests or additional information.',
     submit:'Review Order',req:'Required',saveInfo:'Save my information',
     descToggleOpen:'▼ Show details',descToggleClose:'▲ Hide details',
@@ -437,9 +437,11 @@ function setLang(lang){
   document.getElementById('lbl-p1').textContent=c.p1;
   document.getElementById('lbl-p2').textContent=c.p2;
   document.getElementById('lbl-inv-name').textContent=c.invName;
+  document.getElementById('lbl-in1').textContent=c.invNameRiken;
   document.getElementById('lbl-inv-other').textContent=c.invOther;
   document.getElementById('in-inv-other').placeholder=c.invOtherPh;
   document.getElementById('lbl-inv-format').textContent=c.invFormat;
+  document.getElementById('lbl-inv1').textContent=c.invFormatPdf;
   document.getElementById('lbl-inv-format-other').textContent=c.invFormatOther;
   document.getElementById('in-inv-format-other').placeholder=c.invFormatOtherPh;
   document.getElementById('lbl-memo').textContent=c.memoSection;
