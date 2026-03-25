@@ -223,7 +223,7 @@ input.error,select.error,textarea.error{border-color:#D85A30;box-shadow:0 0 0 2p
   </div>
 
   <button class="submit-btn" id="btn-submit">確認する</button>
-  <div class="version-footer">v4.6</div>
+  <div class="version-footer">v4.8</div>
 </div>
 
 <div class="confirm-screen" id="confirm-screen">
@@ -280,7 +280,7 @@ const content={
     contentPlaceholder:'上のポットの種類と本数を選んで追加ボタンを押すと、ここに内容が追加されます。\n手入力での編集も可能です。',
     foodSection:'フード',foodContent:'フードの内容',foodPlaceholder:'ご希望のフードがあればご記入ください（例：サンドイッチ×10、マフィン×5 など）',
     ordererSection:'注文者情報',dept:'部署名',deptPh:'例：◯◯研究室',name:'お名前',namePh:'例：山田 太郎',
-    email:'メールアドレス',tel:'緊急連絡先',telPh:'例：090-0000-0000',telHint:'当日ご連絡可能な電話番号をご入力ください。',
+    email:'メールアドレス',emailPh:'example@riken.jp',tel:'緊急連絡先',telPh:'例：090-0000-0000',telHint:'当日ご連絡可能な電話番号をご入力ください。',
     paymentSection:'お支払い情報',paymentLabel:'お支払い方法',p1:'請求書払い（後払い）',p2:'店頭払い',
     invName:'請求書宛名',invOther:'その他',invOtherPh:'宛名をご記入ください',
     invFormat:'請求書発行形式',invFormatOther:'その他',invFormatOtherPh:'発行形式をご記入ください',
@@ -315,12 +315,12 @@ const content={
     contentPlaceholder:'e.g. Hot coffee × 2, Iced coffee × 2',
     foodSection:'Food',foodContent:'Food items',foodPlaceholder:'e.g. Sandwiches × 10, Muffins × 5',
     ordererSection:'Contact Information',dept:'Department / Lab',deptPh:'e.g. XX Laboratory',name:'Name',namePh:'e.g. Taro Yamada',
-    email:'Email address',tel:'Emergency contact',telPh:'e.g. 090-0000-0000',telHint:'Please provide a phone number reachable on the day.',
+    email:'Email address',emailPh:'e.g. example@riken.jp',tel:'Emergency contact',telPh:'e.g. 090-0000-0000',telHint:'Please provide a phone number reachable on the day.',
     paymentSection:'Payment',paymentLabel:'Payment method',p1:'Invoice (pay later)',p2:'Pay at store',
     invName:'Invoice recipient',invOther:'Other',invOtherPh:'Enter recipient name',
     invFormat:'Invoice format',invFormatOther:'Other',invFormatOtherPh:'Please describe',
     memoSection:'Additional Notes',memoLabel:'Notes / Remarks',memoPh:'Please enter any special requests or additional information.',
-    submit:'Submit',req:'Required',saveInfo:'Save my information',
+    submit:'Review Order',req:'Required',saveInfo:'Save my information',
     descToggleOpen:'▼ Show details',descToggleClose:'▲ Hide details',
     errDept:'Please enter your department / lab.',errName:'Please enter your name.',
     errEmail:'Please enter your email address.',errTel:'Please enter your emergency contact.',
@@ -329,7 +329,7 @@ const content={
     errInvFormat:'Please select an invoice format.',errInvFormatOther:'Please describe the format.',
     errDatetime:'Please select a date and time.',errContent:'Please enter order contents.',
     successMsg:`<p>Thank you for your order. We have received your request.</p><p>A copy of your order confirmation will be sent to your email address. Please check your inbox.</p><p>If there are no issues with your order and no individual follow-up is needed, this confirmation email will serve as our reply.</p><p>If we need to confirm any details, a staff member will contact you directly.</p><p>Thank you for your understanding.</p>`,
-    reorderBtn:'Order again',closeBtn:'Home'
+    reorderBtn:'Order again',closeBtn:'Back to Home'
   }
 };
 
@@ -372,8 +372,8 @@ function buildDrinkSelect(lang, selectedVal='') {
   return html;
 }
 
-function buildQtySelect(selectedVal='') {
-  let html = '<option value="">本数</option>';
+function buildQtySelect(selectedVal='', lang='ja') {
+  let html = `<option value="">${lang==='en'?'Qty':'本数'}</option>`;
   for(let i=1;i<=10;i++) html += `<option value="${i}"${selectedVal==i?' selected':''}>${i}</option>`;
   return html;
 }
@@ -409,6 +409,8 @@ function setLang(lang){
   currentLang=lang;
   const c=content[lang];
   document.getElementById('form-title').innerHTML=c.title;
+  const subtitle=document.getElementById('form-subtitle');
+  if(subtitle)subtitle.textContent=lang==='ja'?'タリーズコーヒーの美味しさを、人の集まるさまざまなシーンで':'Enjoy Tully\'s Coffee at your gatherings and events';
   document.getElementById('lang-link').innerHTML=c.langLink;
   document.getElementById('desc-content').innerHTML=c.desc;
   document.getElementById('desc-header-title').textContent=lang==='ja'?'ポットサービスについて':'About the Pot Service';
@@ -426,6 +428,7 @@ function setLang(lang){
   document.getElementById('lbl-name').innerHTML=c.name+`<span class="req">${c.req}</span>`;
   document.getElementById('in-name').placeholder=c.namePh;
   document.getElementById('lbl-email').innerHTML=c.email+`<span class="req">${c.req}</span>`;
+  document.getElementById('in-email').placeholder=c.emailPh;
   document.getElementById('lbl-tel').innerHTML=c.tel+`<span class="req">${c.req}</span>`;
   document.getElementById('in-tel').placeholder=c.telPh;
   document.getElementById('hint-tel').textContent=c.telHint;
@@ -472,8 +475,21 @@ function setLang(lang){
     if(labels[1])labels[1].innerHTML=c.contentLabel+`<span style="color:#D85A30;font-size:11px;margin-left:3px">${c.req}</span>`;
     const ta=block.querySelector('textarea');
     if(ta)ta.placeholder=c.contentPlaceholder;
-    const sel=block.querySelector('select');
-    if(sel){const cur=sel.value;sel.innerHTML=buildTimeOptions(lang);sel.value=cur;}
+    const timesel=block.querySelector('select');
+    if(timesel){const cur=timesel.value;timesel.innerHTML=buildTimeOptions(lang);timesel.value=cur;}
+    // Update drink selector
+    const drinkSel=block.querySelector('.drink-select');
+    if(drinkSel){const cur=drinkSel.value;drinkSel.innerHTML=buildDrinkSelect(lang);drinkSel.value=cur;}
+    const qtySel=block.querySelector('.drink-qty');
+    if(qtySel){const cur=qtySel.value;qtySel.innerHTML=buildQtySelect('',lang);qtySel.value=cur;}
+    // Update add button
+    const addBtn=block.querySelector('.drink-add-btn');
+    if(addBtn)addBtn.textContent=lang==='ja'?'追加 ▼':'Add ▼';
+    // Update error messages
+    const errDt=block.querySelector('[id^="err-datetime-"]');
+    if(errDt)errDt.textContent=c.errDatetime;
+    const errCt=block.querySelector('[id^="err-content-"]');
+    if(errCt)errCt.textContent=c.errContent;
   });
 }
 function addDelivery(){
@@ -513,7 +529,7 @@ function addDelivery(){
         <select class="drink-select" id="drink-sel-${id}"></select>
         <span class="drink-x">×</span>
         <select class="drink-qty" id="drink-qty-${id}"></select>
-        <button class="drink-add-btn" onclick="appendDrinkToContent('${id}');return false;">追加 ▼</button>
+        <button class="drink-add-btn" id="drink-add-btn-${id}" onclick="appendDrinkToContent('${id}');return false;">${currentLang==='ja'?'追加 ▼':'Add ▼'}</button>
       </div>
       <textarea placeholder="${c.contentPlaceholder}" style="min-height:60px" onblur="validateDeliveryField(this,'content','${id}')" id="ta-content-${id}" class="ta-auto-resize" oninput="autoResize(this)"></textarea>
       <div class="field-error" id="err-content-${id}">${c.errContent}</div>
@@ -523,7 +539,7 @@ function addDelivery(){
   const drinkSel = document.getElementById('drink-sel-' + id);
   const qtySelEl = document.getElementById('drink-qty-' + id);
   if(drinkSel) drinkSel.innerHTML = buildDrinkSelect(currentLang);
-  if(qtySelEl) qtySelEl.innerHTML = buildQtySelect();
+  if(qtySelEl) qtySelEl.innerHTML = buildQtySelect('', currentLang);
 
   // Set previous values after appending to DOM
   if(prevDate||prevTime||prevContent){
@@ -775,20 +791,25 @@ document.getElementById('btn-submit').addEventListener('click', async function()
 });
 
 function showConfirm(params) {
+  const c=content[currentLang];
+  const isJa=currentLang==='ja';
   const rows = [
-    ['注文情報', params.order_details],
-    ['フード', params.food],
-    ['部署名', params.dept],
-    ['お名前', params.user_name],
-    ['メールアドレス', params.user_email],
-    ['緊急連絡先', params.tel],
-    ['お支払い方法', params.payment],
-    ['請求書宛名', params.invoice_name],
-    ['請求書発行形式', params.invoice_format],
-    ['通信欄', params.memo],
+    [isJa?'注文情報':'Order Details', params.order_details],
+    [isJa?'フード':'Food', params.food],
+    [isJa?'部署名':'Department', params.dept],
+    [isJa?'お名前':'Name', params.user_name],
+    [isJa?'メールアドレス':'Email', params.user_email],
+    [isJa?'緊急連絡先':'Emergency Contact', params.tel],
+    [isJa?'お支払い方法':'Payment', params.payment],
+    [isJa?'請求書宛名':'Invoice Recipient', params.invoice_name],
+    [isJa?'請求書発行形式':'Invoice Format', params.invoice_format],
+    [isJa?'通信欄':'Notes', params.memo],
   ];
   const table = document.getElementById('confirm-table');
   table.innerHTML = rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+  document.getElementById('confirm-title').textContent=isJa?'注文内容の確認':'Order Confirmation';
+  document.getElementById('btn-back').textContent=isJa?'修正する':'Edit';
+  document.getElementById('btn-send').textContent=isJa?'送信する':'Submit';
   document.querySelector('.wrap').style.display='none';
   document.getElementById('confirm-screen').style.display='block';
   window.scrollTo({top:0,behavior:'smooth'});
@@ -848,7 +869,7 @@ document.getElementById('btn-send').addEventListener('click', async function() {
     console.error(err);
     alert(currentLang==='ja'?'送信に失敗しました。時間をおいて再度お試しいただくか、直接お電話ください。（048-451-0153）':'Submission failed. Please try again or call us at 048-451-0153.');
     btn.disabled=false;
-    btn.textContent='送信する';
+    btn.textContent=currentLang==='ja'?'送信する':'Submit';
   }
 });
 </script>
